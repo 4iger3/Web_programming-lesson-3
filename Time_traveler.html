@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="theme-color" content="#111b20">
+	<title>Time Travel Terminal — Customs Declaration</title>
+	<style>
+		:root {
+			color-scheme: light;
+			--paper: #f3eee3;
+			--paper-deep: #e8dfce;
+			--ink: #1b292b;
+			--muted: #687471;
+			--line: #d7cebd;
+			--copper: #bc714b;
+			--copper-dark: #8f4d34;
+			--glow: #aaf2e6;
+			--night: #101a20;
+			--sans: "Trebuchet MS", "Segoe UI", sans-serif;
+			--serif: "Palatino Linotype", "Book Antiqua", Georgia, serif;
+			--mono: "Courier New", monospace;
+		}
+
+		* { box-sizing: border-box; }
+		html { scroll-behavior: smooth; }
+		body { min-width: 320px; margin: 0; color: var(--ink); background: var(--paper); font-family: var(--sans); }
+		button, input, select, textarea { font: inherit; }
+		button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
+
+		.masthead {
+			position: relative;
+			display: flex;
+			min-height: 510px;
+			flex-direction: column;
+			overflow: hidden;
+			padding: 25px clamp(22px, 7vw, 108px) 45px;
+			isolation: isolate;
+			color: #f8f4e9;
+			background: var(--night);
+		}
+		.masthead::before {
+			position: absolute;
+			z-index: -2;
+			inset: 0;
+			background: linear-gradient(90deg, #101a20f2 0%, #101a20d9 37%, #101a2080 66%, #101a2040 100%), url("Image/time%20Travel%20terminal0.jpg") center 43% / cover;
+			content: "";
+			animation: drift 26s ease-in-out infinite alternate;
+		}
+		.masthead::after {
+			position: absolute;
+			z-index: -1;
+			inset: auto 0 0;
+			height: 130px;
+			background: linear-gradient(transparent, var(--paper));
+			content: "";
+			pointer-events: none;
+		}
+		.topline { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+		.seal { display: flex; align-items: center; gap: 11px; color: #f5ead2; font: 11px var(--mono); letter-spacing: .09em; text-transform: uppercase; }
+		.seal-mark { display: grid; width: 36px; height: 36px; place-items: center; border: 1px solid #d79a6c; border-radius: 50%; color: #efbd82; font: 18px var(--serif); }
+		.open-status { display: inline-flex; align-items: center; gap: 8px; color: #d6e6df; font: 10px var(--mono); letter-spacing: .06em; text-transform: uppercase; }
+		.open-status::before { width: 7px; height: 7px; border-radius: 50%; background: #91edb5; box-shadow: 0 0 14px #91edb5; content: ""; animation: blink 2s infinite; }
+		.hero-copy { width: min(790px, 100%); margin: auto 0; padding: 61px 0 58px; animation: rise .8s ease-out both; }
+		.eyebrow { margin: 0 0 14px; color: #e6b682; font: 11px var(--mono); letter-spacing: .16em; text-transform: uppercase; }
+		h1 { max-width: 720px; margin: 0; color: #fff9eb; font: 400 clamp(43px, 7.5vw, 86px)/.97 var(--serif); letter-spacing: 0; }
+		h1 em { color: #efbb83; font-weight: 400; }
+		.hero-bottom { display: flex; align-items: end; justify-content: space-between; gap: 22px; margin-top: 23px; }
+		.hero-copy p { max-width: 470px; margin: 0; color: #d0d8d2; font-size: 14px; line-height: 1.7; }
+		.hero-stamp { flex: 0 0 auto; padding: 10px 12px; border: 1px solid #f1c58a77; color: #f2c38f; font: 9px/1.7 var(--mono); letter-spacing: .07em; text-align: center; text-transform: uppercase; transform: rotate(-4deg); }
+		.hero-stamp strong { display: block; font-size: 13px; font-weight: 400; }
+		.scroll-cue { position: absolute; bottom: 33px; left: 50%; display: flex; align-items: center; gap: 8px; color: #31403a; font: 9px var(--mono); letter-spacing: .1em; text-transform: uppercase; transform: translateX(-50%); white-space: nowrap; }
+		.scroll-cue span { animation: bob 1.5s ease-in-out infinite; }
+
+		main { width: min(1170px, 100%); margin: -14px auto 0; padding: 0 24px 60px; }
+		.form-layout { display: grid; grid-template-columns: minmax(0, 1fr) 285px; align-items: start; gap: 22px; }
+		.declaration { padding: clamp(22px, 4vw, 42px); border: 1px solid #d6ccba; background: #faf7f0; box-shadow: 0 18px 55px #28302b12; }
+		.form-heading { display: flex; align-items: start; justify-content: space-between; gap: 18px; padding-bottom: 20px; border-bottom: 1px solid var(--line); }
+		.form-heading small, .side-label { color: var(--copper-dark); font: 10px var(--mono); letter-spacing: .1em; text-transform: uppercase; }
+		h2 { margin: 6px 0 0; font: 400 29px/1.15 var(--serif); }
+		.form-no { flex: 0 0 auto; color: #8d958e; font: 10px/1.6 var(--mono); text-align: right; }
+		.form-section { padding: 22px 0 20px; border-bottom: 1px solid var(--line); }
+		.section-title { display: flex; align-items: center; gap: 10px; margin: 0 0 15px; font: 600 12px var(--sans); }
+		.section-number { display: grid; width: 22px; height: 22px; place-items: center; border: 1px solid #c9bba4; border-radius: 50%; color: var(--copper-dark); font: 10px var(--mono); }
+		.fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 13px 15px; }
+		.field { display: block; min-width: 0; }
+		.field.wide { grid-column: 1 / -1; }
+		.field-label { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 6px; color: #47534f; font-size: 11px; font-weight: 650; }
+		.hint { color: #91988e; font: 9px var(--mono); font-weight: 400; }
+		input[type="text"], input[type="number"], input[type="datetime-local"], select, textarea {
+			width: 100%; min-width: 0; min-height: 42px; padding: 9px 11px; border: 1px solid #d2c9b9; border-radius: 2px; outline: none; background: #fffdf8; color: var(--ink); font-size: 12px;
+			transition: border-color .18s, box-shadow .18s, background .18s;
+		}
+		textarea { min-height: 76px; resize: vertical; }
+		input:focus, select:focus, textarea:focus { border-color: var(--copper); background: white; box-shadow: 0 0 0 3px #bc714b20; }
+		input::placeholder, textarea::placeholder { color: #a5a99f; }
+		.choice-row { display: flex; flex-wrap: wrap; gap: 7px; }
+		.choice { position: relative; }
+		.choice input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+		.choice span { display: inline-flex; min-height: 35px; align-items: center; gap: 7px; padding: 0 10px; border: 1px solid #d2c9b9; background: #fffdf8; color: #58635e; cursor: pointer; font-size: 10px; transition: .16s ease; }
+		.choice span i { color: #9b7250; font-style: normal; }
+		.choice input:checked + span { border-color: #8f6147; background: #ede2d0; color: #392d25; box-shadow: inset 0 -2px #bc714b; }
+		.choice input:focus-visible + span { outline: 2px solid var(--copper); outline-offset: 2px; }
+		.declaration-check { display: flex; align-items: start; gap: 10px; margin-top: 17px; color: #59635d; font-size: 11px; line-height: 1.6; }
+		.declaration-check input { width: 16px; height: 16px; flex: 0 0 auto; margin: 1px 0 0; accent-color: var(--copper-dark); }
+		.submit-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-top: 20px; }
+		.fine-print { max-width: 245px; margin: 0; color: #818981; font-size: 9px; line-height: 1.6; }
+		.submit {
+			display: inline-flex; min-height: 48px; align-items: center; gap: 18px; padding: 0 17px; border: 0; background: #263c3a; color: #f8f2e6; cursor: pointer; font: 11px var(--mono); letter-spacing: .03em; text-transform: uppercase; transition: background .18s, transform .18s;
+		}
+		.submit:hover { background: #39584f; transform: translateY(-2px); }
+		.submit:focus-visible, .invite-button:focus-visible, .close-button:focus-visible { outline: 3px solid #d49260; outline-offset: 3px; }
+		.submit b { color: #e7ae77; font-size: 17px; font-weight: 400; }
+
+		.sidebar { display: grid; gap: 14px; }
+		.side-panel { overflow: hidden; border: 1px solid #d2c7b4; background: #e9e1d2; }
+		.machine-image { position: relative; height: 184px; overflow: hidden; background: #182523; }
+		.machine-image img { width: 100%; height: 100%; object-fit: cover; transition: transform 5s ease; }
+		.side-panel:hover .machine-image img { transform: scale(1.07); }
+		.image-caption { position: absolute; right: 9px; bottom: 9px; padding: 5px 7px; background: #111b20c9; color: #d9e4dc; font: 8px var(--mono); text-transform: uppercase; }
+		.side-content { padding: 15px 16px 17px; }
+		.side-content h3 { margin: 6px 0 7px; font: 400 20px var(--serif); }
+		.side-content p { margin: 0; color: #64706a; font-size: 11px; line-height: 1.65; }
+		.notice { padding: 15px 16px; border-left: 2px solid var(--copper); background: #f8f3e8; }
+		.notice strong { display: block; margin-bottom: 6px; color: var(--copper-dark); font: 9px var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+		.notice p { margin: 0; color: #616b65; font: 10px/1.7 var(--sans); }
+		.ticker { overflow: hidden; padding: 9px 0; border-top: 1px solid #d2c7b4; color: #747b70; font: 8px var(--mono); letter-spacing: .06em; text-transform: uppercase; }
+		.ticker span { display: inline-block; padding-left: 100%; animation: ticker 19s linear infinite; white-space: nowrap; }
+
+		dialog { width: min(530px, calc(100% - 30px)); max-width: none; max-height: min(90vh, 760px); padding: 0; overflow: visible; border: 1px solid #cfac80; background: #f7f0e3; color: var(--ink); box-shadow: 0 25px 100px #081219a8; }
+		dialog::backdrop { background: #091317bd; backdrop-filter: blur(6px); }
+		dialog[open] { animation: pop-in .42s cubic-bezier(.2,.8,.2,1) both; }
+		.popup-image { position: relative; height: 210px; overflow: hidden; background: #192a22; }
+		.popup-image img { width: 100%; height: 100%; object-fit: cover; animation: drift 24s ease-in-out infinite alternate; }
+		.popup-image::after { position: absolute; inset: 0; background: linear-gradient(transparent 35%, #111b20bb); content: ""; }
+		.popup-spark { position: absolute; z-index: 1; top: 14px; right: 16px; width: 13px; height: 13px; border: 1px solid #eff3bf; border-radius: 50%; box-shadow: 0 0 18px 6px #c6f49d99; animation: blink 1.8s ease-in-out infinite; }
+		.popup-copy { padding: 23px 25px 25px; }
+		.popup-copy .eyebrow { color: var(--copper-dark); font-size: 9px; }
+		.popup-copy h2 { margin: 0; font-size: 31px; }
+		.popup-copy p { margin: 11px 0 19px; color: #5b665f; font-size: 12px; line-height: 1.7; }
+		.popup-actions { display: flex; align-items: center; justify-content: space-between; gap: 15px; }
+		.invite-button { min-height: 43px; padding: 0 14px; border: 0; background: #263c3a; color: #fff7e8; cursor: pointer; font: 10px var(--mono); text-transform: uppercase; }
+		.decline { padding: 8px 0; border: 0; background: none; color: #778079; cursor: pointer; font-size: 10px; text-decoration: underline; text-underline-offset: 3px; }
+		.result-dialog { width: min(590px, calc(100% - 30px)); }
+		.ticket { position: relative; overflow: hidden; padding: 26px; background: #f8f2e7; }
+		.ticket::before, .ticket::after { position: absolute; top: 50%; width: 23px; height: 23px; border-radius: 50%; background: #101a20; content: ""; transform: translateY(-50%); }
+		.ticket::before { left: -13px; }
+		.ticket::after { right: -13px; }
+		.ticket-head { display: flex; justify-content: space-between; gap: 12px; padding-bottom: 13px; border-bottom: 1px dashed #c9b99e; }
+		.ticket-head span { color: var(--copper-dark); font: 9px var(--mono); letter-spacing: .1em; text-transform: uppercase; }
+		.ticket-title { margin: 19px 0 5px; font: 400 29px var(--serif); }
+		.ticket-destination { color: #64706a; font-size: 12px; }
+		.ticket-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; margin: 19px 0; }
+		.ticket-grid div { padding-top: 8px; border-top: 1px solid #d8cbb5; }
+		.ticket-grid small { display: block; margin-bottom: 5px; color: #8d7660; font: 8px var(--mono); text-transform: uppercase; }
+		.ticket-grid strong { font: 12px var(--sans); font-weight: 500; overflow-wrap: anywhere; }
+		.traveler-strip { display: flex; align-items: center; gap: 12px; padding: 11px; background: #e9e2d5; }
+		.traveler-strip img { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; }
+		.traveler-strip span { color: #56635e; font: 9px/1.6 var(--mono); text-transform: uppercase; }
+		.ticket-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 17px; }
+		.ticket-id { color: #8c9187; font: 8px var(--mono); }
+		.close-button { min-height: 38px; padding: 0 12px; border: 1px solid #a99070; background: transparent; color: #4e5148; cursor: pointer; font: 9px var(--mono); text-transform: uppercase; }
+		.toast { position: fixed; z-index: 5; right: 22px; bottom: 22px; display: flex; max-width: min(340px, calc(100vw - 32px)); align-items: center; gap: 11px; padding: 11px 14px; border: 1px solid #d2bb91; background: #f7f0e3; box-shadow: 0 12px 35px #17231c30; color: #44514b; font-size: 10px; opacity: 0; pointer-events: none; transform: translateY(10px); }
+		.toast.show { animation: toast-in .35s ease-out forwards, toast-out .35s ease-in 4.2s forwards; }
+		.toast b { color: var(--copper-dark); font: 16px var(--serif); }
+		footer { padding: 0 22px 24px; color: #85877d; font: 8px var(--mono); letter-spacing: .04em; text-align: center; text-transform: uppercase; }
+
+		@keyframes rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+		@keyframes pop-in { from { opacity: 0; transform: translateY(20px) scale(.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
+		@keyframes drift { from { transform: scale(1); } to { transform: scale(1.06); } }
+		@keyframes blink { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
+		@keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(4px); } }
+		@keyframes ticker { to { transform: translateX(-100%); } }
+		@keyframes toast-in { to { opacity: 1; transform: translateY(0); } }
+		@keyframes toast-out { to { opacity: 0; transform: translateY(10px); } }
+
+		@media (max-width: 820px) {
+			.masthead { min-height: 475px; }
+			.form-layout { grid-template-columns: minmax(0, 1fr) 240px; gap: 14px; }
+			.machine-image { height: 150px; }
+		}
+		@media (max-width: 680px) {
+			.masthead { min-height: 500px; padding: 19px 21px 50px; }
+			.masthead::before { background-position: 42% center; }
+			.open-status { font-size: 8px; }
+			.seal { font-size: 9px; }
+			.seal-mark { width: 31px; height: 31px; }
+			.hero-copy { padding: 48px 0 60px; }
+			.hero-bottom { align-items: start; }
+			.hero-copy p { max-width: 390px; font-size: 12px; }
+			.hero-stamp { display: none; }
+			main { padding: 0 14px 44px; }
+			.form-layout { grid-template-columns: 1fr; }
+			.sidebar { grid-template-columns: 1fr 1fr; align-items: stretch; }
+			.notice { display: flex; flex-direction: column; justify-content: center; }
+			.machine-image { height: 140px; }
+			.side-content { padding: 12px; }
+		}
+		@media (max-width: 460px) {
+			.masthead { min-height: 455px; }
+			.form-heading { gap: 8px; }
+			h2 { font-size: 25px; }
+			.fields { grid-template-columns: 1fr; }
+			.field.wide { grid-column: auto; }
+			.choice-row { gap: 6px; }
+			.choice span { min-height: 34px; padding: 0 8px; font-size: 9px; }
+			.submit-row { align-items: start; flex-direction: column; }
+			.fine-print { max-width: 100%; }
+			.sidebar { grid-template-columns: 1fr; }
+			.machine-image { height: 190px; }
+			.notice { min-height: 90px; }
+			.popup-image { height: 165px; }
+			.popup-copy { padding: 20px; }
+			.popup-copy h2 { font-size: 27px; }
+			.ticket { padding: 22px 19px; }
+			.ticket-title { font-size: 25px; }
+		}
+		@media (prefers-reduced-motion: reduce) {
+			*, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+		}
+	</style>
+</head>
+<body>
+	<header class="masthead">
+		<div class="topline">
+			<div class="seal"><span class="seal-mark" aria-hidden="true">T</span><span>Chrononautics Bureau<br>Temporal Border Control</span></div>
+			<span class="open-status">Portal 07 · accepting arrivals</span>
+		</div>
+		<div class="hero-copy">
+			<p class="eyebrow">Official form TB-09 / Please do not paradox</p>
+			<h1>Time Travel<br><em>Customs.</em></h1>
+			<div class="hero-bottom">
+				<p>Cross centuries with confidence. Declare your destination, your method of arrival, and any suspiciously future-shaped luggage.</p>
+				<div class="hero-stamp"><strong>OPEN</strong>all timelines<br>since 1889</div>
+			</div>
+		</div>
+		<div class="scroll-cue"><span>↓</span> Declare your arrival below</div>
+	</header>
+
+	<main id="declaration">
+		<div class="form-layout">
+			<form class="declaration" id="customs-form">
+				<div class="form-heading">
+					<div><small>Inbound traveller declaration</small><h2>Before you step through</h2></div>
+					<span class="form-no">FORM TB-09<br>REV. 1893 / ∞</span>
+				</div>
+
+				<section class="form-section">
+					<h3 class="section-title"><span class="section-number">01</span> Traveller details</h3>
+					<div class="fields">
+						<label class="field"><span class="field-label">Name for the record</span><input name="traveler" type="text" placeholder="The name your future self knows" required></label>
+						<label class="field"><span class="field-label">Origin year <span class="hint">approx. is fine</span></span><input name="origin" type="number" min="-1000000" max="1000000" placeholder="2026" required></label>
+					</div>
+				</section>
+
+				<section class="form-section">
+					<h3 class="section-title"><span class="section-number">02</span> Where (and when) to?</h3>
+					<div class="fields">
+						<label class="field"><span class="field-label">Destination era</span>
+							<select name="era" required>
+								<option value="" disabled selected>Choose a time period</option>
+								<option>Prehistoric (dinosaurs not guaranteed)</option>
+								<option>Ancient Egypt, 1300 BC</option>
+								<option>Classical Athens, 432 BC</option>
+								<option>Medieval somewhere, probably</option>
+								<option>Renaissance, 1500 AD</option>
+								<option>October 3, 2026 (home, but stranger)</option>
+								<option>New York, 2077</option>
+								<option>Far future (please specify in notes)</option>
+								<option>Somewhen completely different</option>
+							</select>
+						</label>
+						<label class="field"><span class="field-label">Exact arrival date <span class="hint">optional</span></span><input name="arrival" type="datetime-local"></label>
+						<label class="field wide"><span class="field-label">Custom destination <span class="hint">optional override</span></span><input name="custom-destination" type="text" placeholder="A moonlit Tuesday? The year cheese was invented?"></label>
+					</div>
+				</section>
+
+				<section class="form-section">
+					<h3 class="section-title"><span class="section-number">03</span> Your means of time transit</h3>
+					<div class="choice-row" role="radiogroup" aria-label="Time travel method">
+						<label class="choice"><input type="radio" name="transport" value="Brass time machine" checked><span><i>◷</i> Brass machine</span></label>
+						<label class="choice"><input type="radio" name="transport" value="Forest portal"><span><i>✳</i> Forest portal</span></label>
+						<label class="choice"><input type="radio" name="transport" value="Suspiciously large hourglass"><span><i>⌛</i> Hourglass</span></label>
+						<label class="choice"><input type="radio" name="transport" value="Accidental wormhole"><span><i>↝</i> Wormhole</span></label>
+						<label class="choice"><input type="radio" name="transport" value="Other / classified"><span><i>?</i> Other</span></label>
+					</div>
+				</section>
+
+				<section class="form-section">
+					<h3 class="section-title"><span class="section-number">04</span> Declare your carry-on anomalies</h3>
+					<div class="choice-row" aria-label="Items being carried">
+						<label class="choice"><input type="checkbox" name="luggage" value="A phone with spoilers"><span><i>▣</i> Spoiler phone</span></label>
+						<label class="choice"><input type="checkbox" name="luggage" value="A suspicious sandwich"><span><i>◒</i> Suspicious sandwich</span></label>
+						<label class="choice"><input type="checkbox" name="luggage" value="Future currency"><span><i>¤</i> Future money</span></label>
+						<label class="choice"><input type="checkbox" name="luggage" value="One (1) tiny dinosaur"><span><i>♧</i> Tiny dinosaur</span></label>
+						<label class="choice"><input type="checkbox" name="luggage" value="An unexplained glow"><span><i>✦</i> Unexplained glow</span></label>
+						<label class="choice"><input type="checkbox" name="luggage" value="Nothing suspicious"><span><i>○</i> Nothing suspicious</span></label>
+					</div>
+					<label class="field" style="display:block;margin-top:15px"><span class="field-label">Anything else to declare? <span class="hint">the timeline is listening</span></span><textarea name="notes" placeholder="Unusual pets, paradoxes, unfinished prophecies..."></textarea></label>
+					<label class="declaration-check"><input name="paradox" type="checkbox" required><span>I promise not to meet myself, invest in my own inventions, or teach the dinosaurs anything about flight. I accept that the Bureau is not responsible for unexpected moustaches.</span></label>
+				</section>
+
+				<div class="submit-row">
+					<p class="fine-print">Submitting creates a purely imaginary travel pass. Actual time travel is still awaiting committee approval.</p>
+					<button class="submit" type="submit"><span>Request a travel pass</span><b aria-hidden="true">↗</b></button>
+				</div>
+			</form>
+
+			<aside class="sidebar" aria-label="Terminal information">
+				<article class="side-panel">
+					<div class="machine-image"><img src="Image/lucid-origin_Prompt_A_steampunk_time_machine_made_of_brass_and_copper_glowing_blue_energy_cor-0.jpg" alt="A brass time machine glowing with blue light"><span class="image-caption">Transit device / type B</span></div>
+					<div class="side-content"><span class="side-label">Terminal exhibit 01</span><h3>Mind the time gap.</h3><p>Departures are punctual in at least one timeline. Keep all limbs, memories, and paradoxes inside the vehicle.</p></div>
+					<div class="ticker"><span>Next arrival: whenever you are ready · Platform ∞ · Please keep your past self behind the yellow line · </span></div>
+				</article>
+				<div class="notice"><strong>Customs notice</strong><p>Historical figures are not available for meet-and-greets. Please do not feed the chronology.</p></div>
+			</aside>
+		</div>
+	</main>
+
+	<footer>Chrononautics Bureau · No refunds across branching timelines · Established yesterday</footer>
+
+	<dialog id="welcome-dialog" aria-labelledby="welcome-title">
+		<div class="popup-image"><img src="Image/lucid-origin_Prompt_A_magical_time_portal_in_an_ancient_forest_glowing_runes_carved_into_ston-0.jpg" alt="A glowing portal in an ancient forest"><span class="popup-spark" aria-hidden="true"></span></div>
+		<div class="popup-copy">
+			<p class="eyebrow">A message from the other side</p>
+			<h2 id="welcome-title">Your past is expecting you.</h2>
+			<p>The portal is open, the paperwork is mostly in order, and someone from 1893 has sent you an invitation. Tell customs where you are going before the century changes its mind.</p>
+			<div class="popup-actions"><button class="invite-button" id="begin-button" type="button">Accept invitation <span aria-hidden="true">↗</span></button><button class="decline" type="button" data-close="welcome-dialog">I'll stay in this timeline</button></div>
+		</div>
+	</dialog>
+
+	<dialog id="pass-dialog" class="result-dialog" aria-labelledby="pass-title">
+		<div class="ticket">
+			<div class="ticket-head"><span>Chrononautics Bureau</span><span>One-way / probably</span></div>
+			<h2 class="ticket-title" id="pass-title">Temporary passage granted.</h2>
+			<div class="ticket-destination" id="ticket-destination"></div>
+			<div class="ticket-grid" id="ticket-details"></div>
+			<div class="traveler-strip"><img src="Image/lucid-origin_Prompt_A_cinematic_shot_of_a_lone_time_traveler_standing_in_a_swirling_vortex_of-0.jpg" alt="A traveller crossing a time vortex"><span>Keep this pass somewhere<br>outside the space-time fold.</span></div>
+			<div class="ticket-foot"><span class="ticket-id" id="ticket-id"></span><button class="close-button" type="button" data-close="pass-dialog">Close & return to terminal</button></div>
+		</div>
+	</dialog>
+
+	<div class="toast" id="timeline-toast" role="status" aria-live="polite"><b aria-hidden="true">✳</b><span>Timeline update received. It seems harmless. Probably.</span></div>
+
+	<script>
+		const welcomeDialog = document.querySelector('#welcome-dialog');
+		const passDialog = document.querySelector('#pass-dialog');
+		const customsForm = document.querySelector('#customs-form');
+
+		function closeDialog(id) {
+			document.getElementById(id).close();
+		}
+
+		document.querySelector('#begin-button').addEventListener('click', () => {
+			closeDialog('welcome-dialog');
+			document.querySelector('#declaration').scrollIntoView({ behavior: 'smooth' });
+			setTimeout(() => document.querySelector('[name="traveler"]').focus({ preventScroll: true }), 450);
+		});
+
+		document.querySelectorAll('[data-close]').forEach(button => {
+			button.addEventListener('click', () => closeDialog(button.dataset.close));
+		});
+
+		document.querySelectorAll('dialog').forEach(dialog => {
+			dialog.addEventListener('click', event => {
+				if (event.target === dialog) dialog.close();
+			});
+		});
+
+		customsForm.addEventListener('submit', event => {
+			event.preventDefault();
+			if (!customsForm.reportValidity()) return;
+			const data = new FormData(customsForm);
+			const destination = data.get('custom-destination').trim() || data.get('era');
+			const arrival = data.get('arrival');
+			const details = [
+				['Traveller', data.get('traveler')],
+				['Origin year', data.get('origin')],
+				['Transit method', data.get('transport')],
+				['Arrival slot', arrival ? new Date(arrival).toLocaleString() : 'Whenever the portal feels ready'],
+				['Declared cargo', data.getAll('luggage').join(', ') || 'Nothing suspicious (noted)'],
+				['Customs notes', data.get('notes').trim() || 'No further anomalies']
+			];
+			document.querySelector('#ticket-destination').textContent = `Destination: ${destination}`;
+			const detailGrid = document.querySelector('#ticket-details');
+			detailGrid.replaceChildren();
+			details.forEach(([label, value]) => {
+				const cell = document.createElement('div');
+				const caption = document.createElement('small');
+				const content = document.createElement('strong');
+				caption.textContent = label;
+				content.textContent = value;
+				cell.append(caption, content);
+				detailGrid.append(cell);
+			});
+			document.querySelector('#ticket-id').textContent = `PASS NO. TB-${Math.floor(100000 + Math.random() * 900000)} · VALID UNTIL NEXT PARADOX`;
+			passDialog.showModal();
+		});
+
+		window.addEventListener('DOMContentLoaded', () => {
+			window.setTimeout(() => welcomeDialog.showModal(), 420);
+			window.setTimeout(() => document.querySelector('#timeline-toast').classList.add('show'), 4200);
+		});
+	</script>
+</body>
+</html>
