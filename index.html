@@ -1,9 +1,234 @@
-<form action="https://httpbin.org/get" method="get">
-<label for="fname">First name:</label><br>
-<input type="text" id="fname" name="fname"><br>
-<label for="lname">Last name:</label><br>
-<input type="text" id="lname" name="lname"><br>
-<button type="submit">Send with GET</button>
-</form>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4f5ef">
+  <title>Request Playground | Web Basics</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #f4f5ef;
+      --white: #fffefa;
+      --ink: #171a16;
+      --muted: #72766e;
+      --line: #d9ddd3;
+      --acid: #dcff4f;
+      --blue: #2857e6;
+      --orange: #ed6846;
+      --mono: "DM Mono", "Courier New", monospace;
+      --sans: "Space Grotesk", "Trebuchet MS", sans-serif;
+    }
 
-<p>Sample GET link: <a href="https://httpbin.org/get?fname=Jane&amp;lname=Doe">Send sample request</a></p>
+    * { box-sizing: border-box; }
+    body {
+      min-width: 320px;
+      margin: 0;
+      color: var(--ink);
+      background-color: var(--paper);
+      background-image: linear-gradient(#171a1608 1px, transparent 1px), linear-gradient(90deg, #171a1608 1px, transparent 1px);
+      background-size: 32px 32px;
+      font-family: var(--sans);
+    }
+
+    a { color: inherit; }
+    .wordmark, .top-meta, .eyebrow, .method-tag, .field-label, .endpoint, .preview-label, .footer-note { font-family: var(--mono); text-transform: uppercase; }
+
+    .topbar {
+      display: flex;
+      min-height: 68px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 0 clamp(20px, 5vw, 72px);
+      border-bottom: 1px solid var(--line);
+      background: var(--paper);
+    }
+    .wordmark { display: flex; align-items: center; gap: 10px; font-size: 12px; font-weight: 500; }
+    .mark { display: grid; width: 28px; height: 28px; place-items: center; background: var(--acid); font-size: 15px; }
+    .top-meta { color: var(--muted); font-size: 10px; }
+
+    main { width: min(1320px, 100%); margin: 0 auto; padding: 56px clamp(20px, 5vw, 72px) 38px; }
+    .intro { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 28px; margin-bottom: 38px; animation: arrive 500ms ease-out both; }
+    .eyebrow { margin: 0 0 14px; color: var(--blue); font-size: 11px; }
+    h1 { max-width: 700px; margin: 0; font-size: clamp(42px, 6vw, 76px); font-weight: 600; line-height: .98; }
+    .intro-copy { max-width: 260px; margin: 0 0 5px; color: var(--muted); font-size: 14px; line-height: 1.6; }
+
+    .workspace { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(270px, .85fr); align-items: start; gap: 18px; }
+    .methods { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .method-card { min-width: 0; padding: 23px; border: 1px solid var(--line); background: var(--white); animation: arrive 500ms ease-out both; }
+    .method-card:nth-child(2) { animation-delay: 80ms; }
+    .card-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+    .method-tag { display: inline-flex; align-items: center; gap: 8px; font-size: 10px; }
+    .method-tag::before { width: 8px; height: 8px; background: var(--blue); content: ""; }
+    .post-card .method-tag::before { background: var(--orange); }
+    .card-index { color: #a0a49c; font-family: var(--mono); font-size: 10px; }
+    h2 { margin: 0; font-size: 27px; font-weight: 600; }
+    .card-copy { min-height: 42px; margin: 8px 0 21px; color: var(--muted); font-size: 12px; line-height: 1.6; }
+    .endpoint { overflow: hidden; margin-bottom: 20px; padding: 10px 11px; border-left: 2px solid var(--blue); background: #f0f2fa; color: #343e69; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+    .post-card .endpoint { border-color: var(--orange); background: #fbf0eb; color: #784537; }
+
+    .field { display: block; margin-bottom: 14px; }
+    .field-label { display: block; margin-bottom: 7px; color: #5e625b; font-size: 9px; }
+    input, textarea { width: 100%; min-height: 43px; padding: 11px 12px; border: 1px solid var(--line); border-radius: 0; outline: none; background: #fff; color: var(--ink); font: 13px var(--sans); transition: border-color 140ms ease, box-shadow 140ms ease; }
+    textarea { min-height: 72px; resize: vertical; }
+    input:focus, textarea:focus { border-color: var(--blue); box-shadow: 0 0 0 2px #2857e626; }
+    .post-card input:focus, .post-card textarea:focus { border-color: var(--orange); box-shadow: 0 0 0 2px #ed684626; }
+    .submit { display: flex; width: 100%; min-height: 46px; align-items: center; justify-content: space-between; margin-top: 19px; padding: 0 13px; border: 0; background: var(--blue); color: white; cursor: pointer; font: 600 12px var(--sans); transition: background 140ms ease, transform 140ms ease; }
+    .post-card .submit { background: var(--orange); color: #221812; }
+    .submit:hover { background: #1945d1; transform: translateY(-2px); }
+    .post-card .submit:hover { background: #df5531; }
+    .submit:focus-visible, .sample-link:focus-visible { outline: 3px solid var(--acid); outline-offset: 3px; }
+    .arrow { font-size: 18px; font-weight: 400; }
+    .sample-link { display: inline-block; margin-top: 14px; color: var(--blue); font-size: 11px; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+
+    .inspector { position: sticky; top: 18px; overflow: hidden; background: var(--ink); color: #f8f9f2; animation: arrive 500ms 140ms ease-out both; }
+    .inspector-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 18px; border-bottom: 1px solid #ffffff24; }
+    .inspector-head h2 { font-size: 13px; font-weight: 500; }
+    .live { display: inline-flex; align-items: center; gap: 6px; color: var(--acid); font: 9px var(--mono); text-transform: uppercase; }
+    .live::before { width: 6px; height: 6px; border-radius: 50%; background: var(--acid); content: ""; }
+    .preview-block { padding: 17px 18px 19px; border-bottom: 1px solid #ffffff24; }
+    .preview-block:last-child { border-bottom: 0; }
+    .preview-label { display: flex; justify-content: space-between; margin-bottom: 12px; color: #afb4a9; font-size: 9px; }
+    .preview-label b { color: var(--acid); font-weight: 400; }
+    .post-preview .preview-label b { color: #ff9779; }
+    pre { overflow-wrap: anywhere; margin: 0; color: #e9eadf; font: 10px/1.8 var(--mono); white-space: pre-wrap; word-break: break-word; }
+    .inspector-note { margin: 0; padding: 15px 18px; background: #ffffff0a; color: #b9beb3; font-size: 10px; line-height: 1.6; }
+    .inspector-note strong { color: var(--acid); font-weight: 500; }
+
+    footer { display: flex; justify-content: space-between; gap: 16px; margin-top: 28px; padding-top: 15px; border-top: 1px solid var(--line); }
+    .footer-note { margin: 0; color: var(--muted); font-size: 9px; }
+    @keyframes arrive { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    @media (max-width: 900px) {
+      main { padding-top: 42px; }
+      .workspace { grid-template-columns: 1fr; }
+      .inspector { position: static; }
+    }
+    @media (max-width: 620px) {
+      .topbar { min-height: 58px; }
+      .top-meta { max-width: 125px; text-align: right; line-height: 1.5; }
+      main { padding-top: 34px; }
+      .intro { grid-template-columns: 1fr; gap: 15px; margin-bottom: 26px; }
+      h1 { max-width: 430px; font-size: 48px; }
+      .intro-copy { max-width: 360px; }
+      .methods { grid-template-columns: 1fr; }
+      .method-card { padding: 20px; }
+      .card-copy { min-height: 0; }
+      footer { flex-direction: column; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <a class="wordmark" href="#top" aria-label="Web Basics home">
+      <span class="mark" aria-hidden="true">↗</span>
+      <span>WEB BASICS / FIELD 03</span>
+    </a>
+    <span class="top-meta">A tiny playground for HTTP</span>
+  </header>
+
+  <main id="top">
+    <section class="intro" aria-labelledby="page-title">
+      <div>
+        <p class="eyebrow">[ 01 — Request methods ]</p>
+        <h1 id="page-title">Send it<br>two ways.</h1>
+      </div>
+      <p class="intro-copy">Same destination, different delivery. Try both methods and watch the request take shape.</p>
+    </section>
+
+    <div class="workspace">
+      <section class="methods" aria-label="HTTP request examples">
+        <article class="method-card get-card">
+          <div class="card-heading">
+            <span class="method-tag">GET / read</span>
+            <span class="card-index">01</span>
+          </div>
+          <h2>In the URL</h2>
+          <p class="card-copy">GET puts your form values in the address. Useful for searches and shareable filters.</p>
+          <div class="endpoint">https://httpbin.org/get</div>
+          <form action="https://httpbin.org/get" method="get" data-preview="get">
+            <label class="field">
+              <span class="field-label">First name</span>
+              <input type="text" name="fname" autocomplete="given-name" placeholder="Jane" required>
+            </label>
+            <label class="field">
+              <span class="field-label">Last name</span>
+              <input type="text" name="lname" autocomplete="family-name" placeholder="Doe" required>
+            </label>
+            <button class="submit" type="submit"><span>Send with GET</span><span class="arrow" aria-hidden="true">↗</span></button>
+          </form>
+          <a class="sample-link" href="https://httpbin.org/get?fname=Jane&amp;lname=Doe" target="_blank" rel="noopener noreferrer">Open a pre-filled GET link ↗</a>
+        </article>
+
+        <article class="method-card post-card">
+          <div class="card-heading">
+            <span class="method-tag">POST / send</span>
+            <span class="card-index">02</span>
+          </div>
+          <h2>In the body</h2>
+          <p class="card-copy">POST sends values in the request body. Common for messages, sign-ups, and creating data.</p>
+          <div class="endpoint">https://httpbin.org/post</div>
+          <form action="https://httpbin.org/post" method="post" data-preview="post">
+            <label class="field">
+              <span class="field-label">Your name</span>
+              <input type="text" name="name" autocomplete="name" placeholder="Jane Doe" required>
+            </label>
+            <label class="field">
+              <span class="field-label">A short message</span>
+              <textarea name="message" rows="2" placeholder="Hello, server!" required></textarea>
+            </label>
+            <button class="submit" type="submit"><span>Send with POST</span><span class="arrow" aria-hidden="true">↗</span></button>
+          </form>
+        </article>
+      </section>
+
+      <aside class="inspector" aria-labelledby="inspector-title">
+        <div class="inspector-head">
+          <h2 id="inspector-title">Request inspector</h2>
+          <span class="live">Live preview</span>
+        </div>
+        <section class="preview-block">
+          <div class="preview-label"><span>Address bar</span><b>GET</b></div>
+          <pre id="get-preview" aria-live="polite"></pre>
+        </section>
+        <section class="preview-block post-preview">
+          <div class="preview-label"><span>Request body</span><b>POST</b></div>
+          <pre id="post-preview" aria-live="polite"></pre>
+        </section>
+        <p class="inspector-note"><strong>Quick note:</strong> GET values are visible in the URL. Never send passwords or private data through a GET link.</p>
+      </aside>
+    </div>
+
+    <footer>
+      <p class="footer-note">Built for learning / Responses powered by httpbin</p>
+      <p class="footer-note">GET reads · POST sends</p>
+    </footer>
+  </main>
+
+  <script>
+    const getForm = document.querySelector('[data-preview="get"]');
+    const postForm = document.querySelector('[data-preview="post"]');
+    const getPreview = document.querySelector('#get-preview');
+    const postPreview = document.querySelector('#post-preview');
+
+    function updatePreviews() {
+      const getParams = new URLSearchParams(new FormData(getForm));
+      getPreview.textContent = `https://httpbin.org/get?${getParams.toString()}`;
+
+      const postParams = new URLSearchParams(new FormData(postForm));
+      postPreview.textContent = `POST /post\nContent-Type: application/x-www-form-urlencoded\n\n${postParams.toString()}`;
+    }
+
+    getForm.addEventListener('input', updatePreviews);
+    postForm.addEventListener('input', updatePreviews);
+    updatePreviews();
+  </script>
+</body>
+</html>
