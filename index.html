@@ -1,6 +1,9 @@
-<form>
+<form action="https://httpbin.org/get" method="get">
 <label for="fname">First name:</label><br>
 <input type="text" id="fname" name="fname"><br>
 <label for="lname">Last name:</label><br>
-<input type="text" id="lname" name="lname">
+<input type="text" id="lname" name="lname"><br>
+<button type="submit">Send with GET</button>
 </form>
+
+<p>Sample GET link: <a href="https://httpbin.org/get?fname=Jane&amp;lname=Doe">Send sample request</a></p>
