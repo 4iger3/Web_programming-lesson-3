@@ -160,6 +160,21 @@
 		.ticket-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 17px; }
 		.ticket-id { color: #8c9187; font: 8px var(--mono); }
 		.close-button { min-height: 38px; padding: 0 12px; border: 1px solid #a99070; background: transparent; color: #4e5148; cursor: pointer; font: 9px var(--mono); text-transform: uppercase; }
+		#pass-dialog .close-button { border-color: #3c6253; background: #263c3a; color: #fff7e8; }
+		#pass-dialog .close-button:hover { background: #39584f; }
+		.ending-scene { position: fixed; z-index: 20; inset: 0; display: grid; place-items: center; overflow: hidden; background: #071117; color: #fff8e8; opacity: 0; visibility: hidden; }
+		.ending-scene.is-visible { visibility: visible; animation: scene-arrive .9s ease-out forwards; }
+		.ending-image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 56%; animation: scene-zoom 24s ease-out forwards; }
+		.ending-shade { position: absolute; inset: 0; background: linear-gradient(90deg, #071117db 0%, #0711179c 44%, #07111722 100%), linear-gradient(0deg, #0711179c, transparent 48%); }
+		.ending-content { position: relative; width: min(1000px, 100%); padding: clamp(24px, 7vw, 90px); animation: finale-rise .9s .45s both; }
+		.ending-kicker { margin: 0 0 15px; color: #f0bd88; font: 10px var(--mono); letter-spacing: .15em; text-transform: uppercase; }
+		.ending-content h2 { max-width: 720px; margin: 0; color: #fff8e8; font: 400 clamp(42px, 8vw, 88px)/.98 var(--serif); }
+		.ending-content h2 em { color: #f0bd88; font-weight: 400; }
+		.ending-caption { max-width: 440px; margin: 20px 0 0; color: #e0e5df; font-size: 13px; line-height: 1.75; }
+		.ending-coordinates { position: absolute; right: clamp(22px, 5vw, 64px); bottom: 32px; color: #e2d5c0; font: 9px var(--mono); letter-spacing: .08em; text-align: right; text-transform: uppercase; }
+		body.timeline-collapsing { height: 100vh; overflow: hidden; }
+		.timeline-collapsing > :not(.ending-scene) { pointer-events: none; animation: timeline-collapse .9s cubic-bezier(.7, 0, .9, .3) forwards; }
+		.timeline-collapsing .ending-scene { pointer-events: auto; }
 		.toast { position: fixed; z-index: 5; right: 22px; bottom: 22px; display: flex; max-width: min(340px, calc(100vw - 32px)); align-items: center; gap: 11px; padding: 11px 14px; border: 1px solid #d2bb91; background: #f7f0e3; box-shadow: 0 12px 35px #17231c30; color: #44514b; font-size: 10px; opacity: 0; pointer-events: none; transform: translateY(10px); }
 		.toast.show { animation: toast-in .35s ease-out forwards, toast-out .35s ease-in 4.2s forwards; }
 		.toast b { color: var(--copper-dark); font: 16px var(--serif); }
@@ -173,6 +188,10 @@
 		@keyframes ticker { to { transform: translateX(-100%); } }
 		@keyframes toast-in { to { opacity: 1; transform: translateY(0); } }
 		@keyframes toast-out { to { opacity: 0; transform: translateY(10px); } }
+		@keyframes timeline-collapse { 0% { opacity: 1; filter: blur(0); transform: scale(1) rotate(0); } 45% { opacity: .72; filter: blur(2px); transform: scale(.97) rotate(-.4deg); } 100% { opacity: 0; filter: blur(15px); transform: scale(.78) rotate(1.4deg); } }
+		@keyframes scene-arrive { from { opacity: 0; } to { opacity: 1; } }
+		@keyframes scene-zoom { from { transform: scale(1.08); } to { transform: scale(1); } }
+		@keyframes finale-rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
 
 		@media (max-width: 820px) {
 			.masthead { min-height: 475px; }
@@ -336,9 +355,20 @@
 			<div class="ticket-destination" id="ticket-destination"></div>
 			<div class="ticket-grid" id="ticket-details"></div>
 			<div class="traveler-strip"><img src="Image/lucid-origin_Prompt_A_cinematic_shot_of_a_lone_time_traveler_standing_in_a_swirling_vortex_of-0.jpg" alt="A traveller crossing a time vortex"><span>Keep this pass somewhere<br>outside the space-time fold.</span></div>
-			<div class="ticket-foot"><span class="ticket-id" id="ticket-id"></span><button class="close-button" type="button" data-close="pass-dialog">Close & return to terminal</button></div>
+			<div class="ticket-foot"><span class="ticket-id" id="ticket-id"></span><button class="close-button" id="adventure-button" type="button">Let the adventure begin</button></div>
 		</div>
 	</dialog>
+
+	<section class="ending-scene" id="ending-scene" aria-labelledby="ending-title" aria-hidden="true" tabindex="-1">
+		<img class="ending-image" src="Image/gpt-image-2_Prompt_A_futuristic_time_machine_in_a_cyberpunk_city_neon_lights_holographic_int-0.jpg" alt="A luminous time-travel portal at the futuristic Time Travel Terminal">
+		<div class="ending-shade" aria-hidden="true"></div>
+		<div class="ending-content">
+			<p class="ending-kicker">Chrononautics Bureau · departure confirmed</p>
+			<h2 id="ending-title">The old timeline<br>is <em>behind you.</em></h2>
+			<p class="ending-caption">Your pass is stamped. The terminal is fading from view. Somewhere beyond that portal, your impossible little adventure is already waiting.</p>
+		</div>
+		<div class="ending-coordinates">Platform ∞ · Destination: somewhere<br>Local time: no longer applicable</div>
+	</section>
 
 	<div class="toast" id="timeline-toast" role="status" aria-live="polite"><b aria-hidden="true">✳</b><span>Timeline update received. It seems harmless. Probably.</span></div>
 
@@ -346,6 +376,7 @@
 		const welcomeDialog = document.querySelector('#welcome-dialog');
 		const passDialog = document.querySelector('#pass-dialog');
 		const customsForm = document.querySelector('#customs-form');
+		const endingScene = document.querySelector('#ending-scene');
 
 		function closeDialog(id) {
 			document.getElementById(id).close();
@@ -359,6 +390,16 @@
 
 		document.querySelectorAll('[data-close]').forEach(button => {
 			button.addEventListener('click', () => closeDialog(button.dataset.close));
+		});
+
+		document.querySelector('#adventure-button').addEventListener('click', () => {
+			passDialog.close();
+			endingScene.setAttribute('aria-hidden', 'false');
+			document.body.classList.add('timeline-collapsing');
+			window.setTimeout(() => {
+				endingScene.classList.add('is-visible');
+				endingScene.focus({ preventScroll: true });
+			}, 360);
 		});
 
 		document.querySelectorAll('dialog').forEach(dialog => {
