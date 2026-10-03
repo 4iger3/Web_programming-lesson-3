@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f7f4">
+  <title>GitHub User Lookup</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #20231f;
+      --muted: #737970;
+      --line: #dfe3dc;
+      --paper: #f6f7f4;
+      --surface: #fff;
+      --green: #1f7a50;
+      --green-pale: #e7f3ec;
+      --red: #b83b36;
+      --mono: ui-monospace, SFMono-Regular, Consolas, monospace;
+      --sans: "Segoe UI", system-ui, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    body { min-width: 320px; margin: 0; color: var(--ink); background: var(--paper); font: 15px/1.5 var(--sans); }
+    header { display: flex; min-height: 64px; align-items: center; justify-content: space-between; padding: 0 max(22px, calc((100% - 1050px) / 2)); border-bottom: 1px solid var(--line); background: var(--surface); }
+    .brand { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 650; }
+    .brand-mark { display: grid; width: 30px; height: 30px; place-items: center; border-radius: 50%; background: var(--ink); color: #fff; font-size: 17px; }
+    .top-note { color: var(--muted); font-size: 12px; }
+    main { width: min(1050px, 100%); margin: 0 auto; padding: 48px 22px 60px; }
+    h1 { margin: 0; font-size: clamp(32px, 6vw, 48px); line-height: 1.1; letter-spacing: 0; }
+    .intro { max-width: 570px; margin: 10px 0 27px; color: var(--muted); }
+    .lookup { padding: 22px; border: 1px solid var(--line); background: var(--surface); }
+    label { display: block; margin-bottom: 8px; font-size: 12px; font-weight: 650; }
+    .input-row { display: flex; gap: 9px; }
+    input { width: 100%; min-width: 0; height: 44px; padding: 0 12px; border: 1px solid #cbd1c8; border-radius: 4px; outline: none; background: #fff; color: var(--ink); font: inherit; }
+    input:focus { border-color: var(--green); box-shadow: 0 0 0 3px #1f7a501c; }
+    .search { min-width: 104px; height: 44px; padding: 0 15px; border: 0; border-radius: 4px; background: var(--green); color: white; cursor: pointer; font: 600 14px var(--sans); }
+    .search:hover { background: #176541; }
+    .button-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+    .data-button { min-height: 36px; padding: 0 13px; border: 1px solid var(--line); border-radius: 4px; background: var(--surface); color: var(--ink); cursor: pointer; font: 600 12px var(--sans); }
+    .data-button:hover, .data-button[aria-pressed="true"] { border-color: var(--green); background: var(--green-pale); color: #145d3b; }
+    .status { min-height: 25px; margin: 13px 0 0; color: var(--muted); font-size: 12px; }
+    .status.error { color: var(--red); }
+    .result { margin-top: 22px; }
+    .result:empty { display: none; }
+    .result-title { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 0 0 10px; font-size: 16px; }
+    .result-count { color: var(--muted); font: 11px var(--mono); }
+    .profile { display: grid; grid-template-columns: 84px 1fr; gap: 18px; padding: 18px; border: 1px solid var(--line); background: var(--surface); }
+    .avatar { width: 84px; height: 84px; border-radius: 50%; background: #edf0ea; object-fit: cover; }
+    .profile h2 { margin: 0 0 2px; font-size: 20px; }
+    .login { color: var(--muted); font-size: 13px; }
+    .bio { margin: 9px 0; }
+    .stats { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 12px; color: #4f554d; font-size: 12px; }
+    .stats strong { color: var(--ink); }
+    .result-list { display: grid; gap: 8px; }
+    .item { padding: 14px 16px; border: 1px solid var(--line); background: var(--surface); }
+    .item-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 5px 14px; }
+    .item a { color: #155d9a; font-weight: 650; text-decoration: none; }
+    .item a:hover { text-decoration: underline; }
+    .item-meta { color: var(--muted); font: 10px var(--mono); }
+    .item p { margin: 7px 0 0; color: #555c53; font-size: 12px; }
+    .empty { padding: 22px; border: 1px dashed var(--line); color: var(--muted); text-align: center; }
+    .api-note { margin: 24px 0 0; color: var(--muted); font-size: 11px; }
+    code { font-family: var(--mono); }
+    @media (max-width: 560px) {
+      header { padding: 0 18px; }
+      .top-note { max-width: 140px; text-align: right; }
+      main { padding: 34px 16px 44px; }
+      .lookup { padding: 16px; }
+      .input-row { flex-wrap: wrap; }
+      .search { width: 100%; }
+      .profile { grid-template-columns: 60px 1fr; gap: 13px; padding: 14px; }
+      .avatar { width: 60px; height: 60px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand"><span class="brand-mark" aria-hidden="true">⌘</span><span>GitHub lookup</span></div>
+    <span class="top-note">Public profile explorer</span>
+  </header>
+  <main>
+    <h1>Find a GitHub user</h1>
+    <p class="intro">Enter any GitHub username, then choose which public information you want to look up.</p>
+
+    <section class="lookup" aria-label="GitHub user search">
+      <form id="search-form">
+        <label for="username">GitHub username</label>
+        <div class="input-row">
+          <input id="username" name="username" type="text" value="4iger3" placeholder="e.g. octocat" autocomplete="off" required>
+          <button class="search" type="submit">Search user</button>
+        </div>
+      </form>
+      <div class="button-row" role="group" aria-label="Choose GitHub information">
+        <button class="data-button" type="button" data-kind="user" aria-pressed="true">User</button>
+        <button class="data-button" type="button" data-kind="followers" aria-pressed="false">Followers</button>
+        <button class="data-button" type="button" data-kind="repos" aria-pressed="false">Repos</button>
+        <button class="data-button" type="button" data-kind="events" aria-pressed="false">Events</button>
+        <button class="data-button" type="button" data-kind="gists" aria-pressed="false">Gists</button>
+      </div>
+      <p id="status" class="status" role="status" aria-live="polite">Ready. Choose an information type to start.</p>
+    </section>
+
+    <section id="result" class="result" aria-live="polite" aria-label="GitHub results"></section>
+    <p class="api-note">Uses the public GitHub API. Results are limited by GitHub's unauthenticated API rate limits.</p>
+  </main>
+
+  <script>
+    const form = document.querySelector('#search-form');
+    const usernameInput = document.querySelector('#username');
+    const statusMessage = document.querySelector('#status');
+    const result = document.querySelector('#result');
+    const buttons = [...document.querySelectorAll('[data-kind]')];
+    let currentKind = 'user';
+
+    function setStatus(message, isError = false) {
+      statusMessage.textContent = message;
+      statusMessage.classList.toggle('error', isError);
+    }
+
+    function element(tag, className, text) {
+      const node = document.createElement(tag);
+      if (className) node.className = className;
+      if (text !== undefined) node.textContent = text;
+      return node;
+    }
+
+    function addTitle(title, count) {
+      const heading = element('h2', 'result-title');
+      heading.append(element('span', '', title));
+      if (count !== undefined) heading.append(element('span', 'result-count', `${count} results`));
+      result.append(heading);
+    }
+
+    function renderUser(user) {
+      addTitle('GitHub user');
+      const card = element('article', 'profile');
+      const avatar = element('img', 'avatar');
+      avatar.src = user.avatar_url;
+      avatar.alt = `${user.login}'s avatar`;
+      const details = element('div');
+      details.append(element('h2', '', user.name || user.login));
+      details.append(element('div', 'login', `@${user.login}`));
+      if (user.bio) details.append(element('p', 'bio', user.bio));
+      const stats = element('div', 'stats');
+      stats.append(element('span', '', `Followers: ${user.followers}`));
+      stats.append(element('span', '', `Following: ${user.following}`));
+      stats.append(element('span', '', `Repositories: ${user.public_repos}`));
+      if (user.location) stats.append(element('span', '', `Location: ${user.location}`));
+      details.append(stats);
+      if (user.html_url) {
+        const link = element('a', '', 'Open GitHub profile ↗');
+        link.href = user.html_url;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.style.cssText = 'display:inline-block;margin-top:12px;color:#155d9a;font-size:12px';
+        details.append(link);
+      }
+      card.append(avatar, details);
+      result.append(card);
+    }
+
+    function renderItems(kind, items) {
+      const names = { followers: 'Followers', repos: 'Repositories', events: 'Recent events', gists: 'Public gists' };
+      addTitle(names[kind], items.length);
+      if (!items.length) {
+        result.append(element('div', 'empty', 'No public results found.'));
+        return;
+      }
+      const list = element('div', 'result-list');
+      for (const item of items) {
+        const card = element('article', 'item');
+        const top = element('div', 'item-head');
+        let title;
+        let url;
+        let description = '';
+        if (kind === 'followers') {
+          title = item.login;
+          url = item.html_url;
+          description = 'GitHub follower';
+        } else if (kind === 'repos') {
+          title = item.name;
+          url = item.html_url;
+          description = item.description || 'No description';
+        } else if (kind === 'gists') {
+          const files = Object.keys(item.files || {});
+          title = files[0] || 'Untitled gist';
+          url = item.html_url;
+          description = item.description || 'No description';
+        } else {
+          title = item.type || 'Event';
+          url = item.repo?.url ? `https://github.com/${item.repo.name}` : `https://github.com/${usernameInput.value.trim()}`;
+          description = `${item.repo?.name || ''}${item.payload?.action ? ` · ${item.payload.action}` : ''}`;
+        }
+        const link = element('a', '', title);
+        link.href = url || '#';
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        top.append(link);
+        if (kind === 'repos') top.append(element('span', 'item-meta', `${item.language || 'No language'} · ★ ${item.stargazers_count}`));
+        else if (kind === 'events') top.append(element('span', 'item-meta', new Date(item.created_at).toLocaleDateString()));
+        card.append(top);
+        if (description) card.append(element('p', '', description));
+        list.append(card);
+      }
+      result.append(list);
+    }
+
+    async function loadData(kind = currentKind) {
+      const username = usernameInput.value.trim();
+      if (!username) {
+        setStatus('Enter a GitHub username first.', true);
+        usernameInput.focus();
+        return;
+      }
+      currentKind = kind;
+      buttons.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.kind === kind)));
+      const paths = { user: '', followers: '/followers', repos: '/repos?sort=updated&per_page=30', events: '/events?per_page=30', gists: '/gists?per_page=30' };
+      result.replaceChildren();
+      setStatus(`Loading ${kind} for @${username}...`);
+      buttons.forEach(button => { button.disabled = true; });
+      try {
+        const response = await fetch(`https://api.github.com/users/${encodeURIComponent(username)}${paths[kind]}`, {
+          headers: { Accept: 'application/vnd.github+json' }
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          if (response.status === 404) throw new Error(`GitHub user "${username}" was not found.`);
+          if (response.status === 403 || response.status === 429) throw new Error('GitHub API rate limit reached. Please try again later.');
+          throw new Error(data.message || `GitHub API returned ${response.status}.`);
+        }
+        if (kind === 'user') renderUser(data);
+        else renderItems(kind, data);
+        setStatus(`Showing ${kind} for @${username}.`);
+      } catch (error) {
+        setStatus(error.message || 'Could not connect to the GitHub API.', true);
+      } finally {
+        buttons.forEach(button => { button.disabled = false; });
+      }
+    }
+
+    form.addEventListener('submit', event => {
+      event.preventDefault();
+      loadData('user');
+    });
+    buttons.forEach(button => button.addEventListener('click', () => loadData(button.dataset.kind)));
+    loadData('user');
+  </script>
+</body>
+</html>
